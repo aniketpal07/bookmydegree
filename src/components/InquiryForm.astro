@@ -6,8 +6,8 @@
  *
  * Replace the two placeholder numbers below when the real ones are ready.
  */
-const WHATSAPP_NUMBER = '919211657613'; // digits only, with country code
-const PHONE_NUMBER = '+919211657613';
+const WHATSAPP_NUMBER = '919667571982'; // digits only, with country code
+const PHONE_NUMBER = '+919667571982';
 const WHATSAPP_MESSAGE = encodeURIComponent(
   'Hi, I found BookMyDegree and would like to inquire about a program and book a call.'
 );
@@ -17,7 +17,7 @@ const WHATSAPP_MESSAGE = encodeURIComponent(
   class="inquiry-form"
   id="inquiry-form"
   novalidate
-  aria-label="Inquire and book a call"
+  aria-label="Get course details"
   data-whatsapp={WHATSAPP_NUMBER}
   data-phone={PHONE_NUMBER}
 >
@@ -87,15 +87,15 @@ const WHATSAPP_MESSAGE = encodeURIComponent(
   </div>
 
   <button class="btn btn-primary submit" type="submit">
-    Inquire and book a call
+    Send me the course details
     <svg class="arrow" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
       <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </button>
 
   <p class="form-note">
-    We reply to help you pick the right program. Enrollment happens by phone,
-    WhatsApp, or in person — we guide the selection and paperwork.
+    We reply with the programs, eligibility and fees that fit what you asked
+    for. No counselling call needed — ask for one only if you want it.
   </p>
 </form>
 
@@ -107,14 +107,14 @@ const WHATSAPP_MESSAGE = encodeURIComponent(
     </svg>
   </div>
 
-  <h3>Thanks — your inquiry is in.</h3>
+  <h3>Thanks — your details are in.</h3>
   <p class="thankyou-lead">
-    We'll be in touch on the number you shared. In the meantime, pick whichever
-    is easier:
+    We'll send the course details on the number you shared, usually within a
+    working day. If you'd rather not wait, continue here:
   </p>
 
   <p class="mail-note" id="inquiry-mail-note" hidden>
-    We couldn't email this to our team automatically. Continue on WhatsApp so
+    We couldn't pass this to our team automatically. Continue on WhatsApp so
     nothing is missed.
   </p>
 
@@ -140,10 +140,7 @@ const WHATSAPP_MESSAGE = encodeURIComponent(
     </a>
   </div>
 
-  <p class="thankyou-back">
-    Or keep browsing — <a href="#programs">see programs</a> and
-    <a href="#guidance">career guidance</a>.
-  </p>
+  <p class="thankyou-back">Or keep browsing — <a href="/#programs">see programs</a> or <a href="/counselling">book a career counselling call</a>.</p>
 </div>
 
 <script>
@@ -339,7 +336,7 @@ const WHATSAPP_MESSAGE = encodeURIComponent(
   /* ---------- Thank-you ---------- */
   .thankyou {
     display: grid;
-    gap: 14px;
+    gap: 18px;
     justify-items: start;
   }
 
@@ -388,8 +385,9 @@ const WHATSAPP_MESSAGE = encodeURIComponent(
 
   .thankyou-back {
     font-size: 0.875rem;
+    line-height: 1.65;
     color: var(--text-body);
-    margin-top: 4px;
+    margin-top: 10px;
   }
 
   .thankyou-back a {

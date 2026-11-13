@@ -16,7 +16,7 @@ import { sendMail } from './mail.js';
 const MAX_BODY_BYTES = 8 * 1024;
 
 const FORM_TYPES = {
-  'program-inquiry': 'New program inquiry',
+  'program-inquiry': 'New course details request',
   'career-counselling': 'New counselling request',
 };
 
@@ -80,7 +80,7 @@ function renderHtml(heading, rows) {
 </html>`;
 }
 
-async function handleInquiry(request, env) {
+async function handleInquiry(request, env, ctx) {
   const url = new URL(request.url);
 
   // Same-origin only: a browser elsewhere should not be able to post here.
@@ -151,34 +151,47 @@ async function handleInquiry(request, env) {
     replyTo: email || undefined,
   };
 
-  try {
-    if (env.EMAIL) {
-      // Deployed: Cloudflare hands the message to the recipient's mail server.
-      await env.EMAIL.send({
-        to: mail.to,
-        from: env.MAIL_FROM || 'noreply@bookmydegree.in',
-        subject: mail.subject,
-        html: mail.html,
-        text: mail.text,
-        replyTo: mail.replyTo,
-      });
-    } else {
-      // Local development: talk to the mailbox over SMTP directly.
-      await sendMail(env, mail);
-    }
-  } catch (error) {
-    console.error('inquiry: SMTP send failed —', String((error && error.stack) || error).slice(0, 700));
-    const notConfigured = /credentials are not configured/.test(String(error));
-    return json(notConfigured ? 503 : 502, {
-      error: notConfigured ? 'mail_not_configured' : 'delivery_failed',
-    });
+  // Fail fast only for a deployment that has no way to send at all.
+  if (!env.EMAIL && (!env.SMTP_USER || !env.SMTP_PASS)) {
+    return json(503, { error: 'mail_not_configured' });
   }
 
+  const deliver = async () => {
+    try {
+      if (env.EMAIL) {
+        // Deployed: Cloudflare hands the message to the recipient's mail server.
+        await env.EMAIL.send({
+          to: mail.to,
+          from: env.MAIL_FROM || 'noreply@bookmydegree.in',
+          subject: mail.subject,
+          html: mail.html,
+          text: mail.text,
+          replyTo: mail.replyTo,
+        });
+      } else {
+        // Local development: talk to the mailbox over SMTP directly.
+        await sendMail(env, mail);
+      }
+    } catch (error) {
+      console.error(
+        'inquiry: delivery failed —',
+        String((error && error.stack) || error).slice(0, 700)
+      );
+    }
+  };
+
+  // Answer the visitor immediately; keep sending after the response is gone.
+  if (ctx && typeof ctx.waitUntil === 'function') {
+    ctx.waitUntil(deliver());
+    return json(200, { ok: true });
+  }
+
+  await deliver();
   return json(200, { ok: true });
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     // One canonical host: www goes to the bare domain.
@@ -189,7 +202,7 @@ export default {
 
     if (url.pathname === '/api/inquire') {
       if (request.method !== 'POST') return json(405, { error: 'method_not_allowed' });
-      return handleInquiry(request, env);
+      return handleInquiry(request, env, ctx);
     }
 
     return env.ASSETS.fetch(request);
